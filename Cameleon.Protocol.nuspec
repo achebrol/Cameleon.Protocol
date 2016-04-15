@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>cameleon.protocol</id>
+    <version>1.0.0</version>
+    <licenseUrl>https://github.com/achebrol/Cameleon.Protocol/blob/master/LICENSE</licenseUrl>
+    <title>Cameleon Protocol v1</title>
+    <authors>Azeet Chebrolu</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Cameleon Sign Control Protocol Implementation</description>
+    <tags>Cameleon, Protocol, XML-RPC</tags>
+    <dependencies>
+      <dependency id="xmlrpcnet" version="3.0.0.266" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Debug\Cameleon.Protocol.dll" target="lib" />
+    <file src="Readme.txt" target=""/>
+  </files>
+</package>
