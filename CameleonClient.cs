@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,81 +24,86 @@ namespace Cameleon.Protocol
             _hostname = hostname;
             _port = port;
         }
-
-        public MixedResult<ScheduledMessage[]> CancelScheduledMessages(string[] selectedMessages)
+        private MethodInfo GetMethodInfo([CallerMemberName] string callerMemberName = "")
+        {
+            //MethodBase.GetCurrentMethod() doent work in async operations.always returns "MoveNext"
+            MethodInfo info = this.GetType().GetMethod(callerMemberName);
+            return info;
+        }
+        public async Task<MixedResult<ScheduledMessage[]>> CancelScheduledMessages(string[] selectedMessages)
         {
             var parameters = new List<object>() { selectedMessages };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessMixedRequest<ScheduledMessage[]>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessMixedRequest<ScheduledMessage[]>(request);
             return response;
         }
 
-        public MixedResult<ScheduledMessage[]> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime, EventTimeStruct newEndTime)
+        public async Task<MixedResult<ScheduledMessage[]>> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime, EventTimeStruct newEndTime)
         {
             var parameters = new List<object>() { selectedMessages, newUpdateTime, newEndTime };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessMixedRequest<ScheduledMessage[]>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessMixedRequest<ScheduledMessage[]>(request);
             return response;
         }
 
-        public MixedResult<ScheduledMessage[]> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime)
+        public async Task<MixedResult<ScheduledMessage[]>> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime)
         {
             var parameters = new List<object>() { selectedMessages, newUpdateTime, string.Empty };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessMixedRequest<ScheduledMessage[]>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessMixedRequest<ScheduledMessage[]>(request);
             return response;
         }
 
-        public GetCurrentMessageResponse GetCurrentMessage(int signID)
+        public async Task<GetCurrentMessageResponse> GetCurrentMessage(int signID)
         {
             var parameters = new List<object>() { signID };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessRequest<GetCurrentMessageResponse>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessRequest<GetCurrentMessageResponse>(request);
             return response;
         }
         /// <summary>
         /// Gets the current messages.
         /// </summary>
         /// <returns></returns>
-        public XmlRpcStruct GetCurrentMessages()
+        public async Task<XmlRpcStruct> GetCurrentMessages()
         {
             var parameters = new List<object>() { };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessRequest<XmlRpcStruct>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessRequest<XmlRpcStruct>(request);
             return response;
         }
 
-        public MixedResult<GetGlobalMessagesResponse[]> GetGlobalMessages()
+        public async Task<MixedResult<GetGlobalMessagesResponse[]>> GetGlobalMessages()
         {
             var parameters = new List<object>() { };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessMixedRequest<GetGlobalMessagesResponse[]>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessMixedRequest<GetGlobalMessagesResponse[]>(request);
             return response;
         }
 
-        public MixedResult<ScheduledMessage[]> GetScheduledMessages()
+        public async Task<MixedResult<ScheduledMessage[]>> GetScheduledMessages()
         {
             var parameters = new List<object>() { };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessMixedRequest<ScheduledMessage[]>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessMixedRequest<ScheduledMessage[]>(request);
             return response;
         }
 
-        public GetSignIDsResponse[] GetSignIDs()
+        public async Task<GetSignIDsResponse[]> GetSignIDs()
         {
             var parameters = new List<object>() { };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessRequest<GetSignIDsResponse[]>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessRequest<GetSignIDsResponse[]>(request);
             return response;
         }
 
-        public SetMessageResponse SetMessageImmediately(string[] recipients, int messageLevel, string username, string password, string messageName, MessageStruct[] messagePhases = null, DateTime? endTime = null, int? activatePriority = null, int? runPriority = null)
+        public async Task<SetMessageResponse> SetMessageImmediately(string[] recipients, int messageLevel, string username, string password, string messageName, MessageStruct[] messagePhases = null, DateTime? endTime = null, int? activatePriority = null, int? runPriority = null)
         {
             EventTimeStruct updateTime = new EventTimeStruct();
             updateTime.EventTime =Constants.IMMIDIATELY;
-            return SetMessage(recipients, updateTime, messageLevel, username, password, messageName, messagePhases, endTime, activatePriority, runPriority);
+            return await SetMessage(recipients, updateTime, messageLevel, username, password, messageName, messagePhases, endTime, activatePriority, runPriority);
         }
-        public SetMessageResponse SetMessage(string[] recipients, EventTimeStruct updateTime, int messageLevel, string username, string password, string messageName, MessageStruct[] messagePhases = null, DateTime? endTime = null, int? activatePriority = null, int? runPriority = null)
+        public async Task<SetMessageResponse> SetMessage(string[] recipients, EventTimeStruct updateTime, int messageLevel, string username, string password, string messageName, MessageStruct[] messagePhases = null, DateTime? endTime = null, int? activatePriority = null, int? runPriority = null)
         {
             recipients.ToList().ForEach(recipient =>
             {
@@ -121,21 +127,22 @@ namespace Cameleon.Protocol
             { //Add Optional Parameters when passed
                 parameters.AddRange(new List<object>() { messagePhases, endTime.Value, activatePriority.Value, runPriority.Value });
             }
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessRequest<SetMessageResponse>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessRequest<SetMessageResponse>(request);
             return response;
         }
 
-        public ValidateUsernamePassworResult ValidateUsernamePassword(string userName, string password)
+        public async Task<ValidateUsernamePassworResult> ValidateUsernamePassword(string userName, string password)
         {
             var parameters = new List<object>() { };
-            var request = createXmlRpcRequest(MethodBase.GetCurrentMethod(), parameters);
-            var response = ProcessRequest<ValidateUsernamePassworResult>(request).Result;
+            var request = createXmlRpcRequest(parameters);
+            var response = await ProcessRequest<ValidateUsernamePassworResult>(request);
             return response;
         }
-        private XmlRpcRequest createXmlRpcRequest(MethodBase mb, IEnumerable<Object> parameters)
+        private XmlRpcRequest createXmlRpcRequest(IEnumerable<Object> parameters, [CallerMemberName] string callerMemberName = "")
         {
-            return new XmlRpcRequest(mb.Name, parameters.ToArray(), mb as MethodInfo);
+            MethodInfo mi = this.GetType().GetMethod(callerMemberName);
+            return new XmlRpcRequest(mi.Name, parameters.ToArray(), mi);
         }
         private async Task<T> ProcessRequest<T>(XmlRpcRequest request)
         {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Cameleon.Protocol
 {
-    interface ICameleonClient
+    public interface ICameleonClient
     {
         /// <summary>
         /// Sets the message immediately.
@@ -22,7 +22,7 @@ namespace Cameleon.Protocol
         /// <param name="activatePriority">The activate priority.</param>
         /// <param name="runPriority">The run priority.</param>
         /// <returns></returns>
-        SetMessageResponse SetMessageImmediately(string[] recipients, int messageLevel, string username,
+        Task<SetMessageResponse> SetMessageImmediately(string[] recipients, int messageLevel, string username,
                                       string password, string messageName, MessageStruct[] messagePhases,
                                       DateTime? endTime, int? activatePriority, int? runPriority);
         /// <summary>
@@ -39,32 +39,32 @@ namespace Cameleon.Protocol
         /// <param name="activatePriority">The activate priority.</param>
         /// <param name="runPriority">The run priority.</param>
         /// <returns></returns>
-        SetMessageResponse SetMessage(string[] recipients, EventTimeStruct updateTime, int messageLevel, string username,
+        Task<SetMessageResponse> SetMessage(string[] recipients, EventTimeStruct updateTime, int messageLevel, string username,
                                       string password, string messageName, MessageStruct[] messagePhases,
                                       DateTime? endTime, int? activatePriority, int? runPriority);
         /// <summary>
         /// Gets all sign ids.
         /// </summary>
         /// <returns></returns>
-        GetSignIDsResponse[] GetSignIDs();
+        Task<GetSignIDsResponse[]> GetSignIDs();
         /// <summary>
         /// Gets the scheduled messages.
         /// </summary>
         /// <returns></returns>
-        MixedResult<ScheduledMessage[]> GetScheduledMessages();
+        Task<MixedResult<ScheduledMessage[]>> GetScheduledMessages();
         /// <summary>
         /// Cancels the scheduled messages.
         /// </summary>
         /// <param name="selectedMessages">The selected messages.</param>
         /// <returns></returns>
-        MixedResult<ScheduledMessage[]> CancelScheduledMessages(string[] selectedMessages);
+        Task<MixedResult<ScheduledMessage[]>> CancelScheduledMessages(string[] selectedMessages);
         /// <summary>
         /// Edits the scheduled messages.
         /// </summary>
         /// <param name="selectedMessages">The selected messages.</param>
         /// <param name="newUpdateTime">The new update time.</param>
         /// <returns></returns>
-        MixedResult<ScheduledMessage[]> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime); //Send an empty string as newUpdateTime
+        Task<MixedResult<ScheduledMessage[]>> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime); //Send an empty string as newUpdateTime
         /// <summary>
         /// Edits the scheduled messages.
         /// </summary>
@@ -72,7 +72,7 @@ namespace Cameleon.Protocol
         /// <param name="newUpdateTime">The new update time.</param>
         /// <param name="newEndTime">The new end time.</param>
         /// <returns></returns>
-        MixedResult<ScheduledMessage[]> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime, EventTimeStruct newEndTime);
+        Task<MixedResult<ScheduledMessage[]>> EditScheduledMessages(string[] selectedMessages, EventTimeStruct newUpdateTime, EventTimeStruct newEndTime);
         /// <summary>
         /// Gets the current messages.
         /// </summary>
@@ -80,13 +80,13 @@ namespace Cameleon.Protocol
         /// <remarks>
         /// Returns dymanic member names hence XmlRpcStruct.dynamic also works
         /// </remarks>
-        XmlRpcStruct GetCurrentMessages();
+        Task<XmlRpcStruct> GetCurrentMessages();
         /// <summary>
         /// Gets the current message.
         /// </summary>
         /// <param name="signID">The sign identifier.</param>
         /// <returns></returns>
-        GetCurrentMessageResponse GetCurrentMessage(int signID);
+        Task<GetCurrentMessageResponse> GetCurrentMessage(int signID);
         /// <summary>
         /// Validates the username password.
         /// </summary>
@@ -94,12 +94,12 @@ namespace Cameleon.Protocol
         /// <param name="password">The password.</param>
         /// <returns></returns>
         [XmlRpcEnumMapping]
-        ValidateUsernamePassworResult ValidateUsernamePassword(string userName, string password);
+        Task<ValidateUsernamePassworResult> ValidateUsernamePassword(string userName, string password);
         /// <summary>
         /// Gets all global messages.
         /// </summary>
         /// <returns></returns>
-        MixedResult<GetGlobalMessagesResponse[]> GetGlobalMessages();
+        Task<MixedResult<GetGlobalMessagesResponse[]>> GetGlobalMessages();
 
     }
 
